@@ -13,6 +13,7 @@ class Manager {
         this.bestSolution = []
         this.makeSpanHistory = []
         this.tasks = []
+        this.runs = 0
         for (let i = 0; i < nMachines; i++) {
             this.machines[i] = new Machine()
         }
@@ -22,12 +23,157 @@ class Manager {
         this.machines[0].setTasks(this.tasks);
     }
 
+    plot() {
+        $("#mk>canvas").remove();
+        $("#mk").append('<canvas id="makespanChart"></canvas>');
+
+        $("#mach>canvas").remove();
+        $("#mach").append('<canvas id="machinesChart"></canvas>');
+
+        let ctx = document.getElementById('makespanChart').getContext('2d');
+        var ctx2 = document.getElementById('machinesChart').getContext('2d');
+
+        let lb = []
+        for (let i = 0; i < this.makeSpanHistory.length - 1; i++) {
+            lb.push(i);
+        }
+        let mkhist = this.makeSpanHistory.slice(0, this.makeSpanHistory.length - 1);
+        var config = {
+            type: 'line',
+            data: {
+                labels: lb,
+                datasets: [{
+                    label: 'History Makespan',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: mkhist,
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Makespan'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Iteration'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Values'
+                        }
+                    }]
+                }
+            }
+        };
+
+        let machineLbs = []
+        for (let i = 0; i < this.machines.length; i++) {
+            machineLbs.push('M' + i)
+        }
+
+        let data = []
+        for (let i = 0; i < this.bestSolution.length; i++) {
+            data[i] = new Object();
+            data[i].label = []
+            data[i].data = []
+            let g = Math.floor(Math.random() * 255)
+            let b = Math.floor(Math.random() * 255)
+            let ctxt = `rgba(255, ${g}, ${b}, 0.2)`
+            data[i].backgroundColor = ctxt
+        }
+        let j = 0
+        data.forEach(d => {
+            for (let i = 0; i < this.bestSolution.length; i++) {
+                if (this.bestSolution[i].length > j) {
+                    d.data.push(this.bestSolution[i][j])
+                }
+            }
+            j++;
+        });
+
+        var myChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: machineLbs,
+                datasets: data
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                scales: {
+                    yAxes: [{
+                        stacked: false,
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    xAxes: [{
+                        stacked: true,
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+
+                }
+            }
+        });
+
+
+        new Chart(ctx, config);
+    }
+
+    generateOutput(exTime, randParam) {
+        let output = new Object();
+        var sel = document.getElementById('monFlag');
+        var text = sel.options[sel.selectedIndex].text;
+        output.heuristic = text
+        output.taskAmout = TASK_AMOUNT[TASK_AMOUNT_INDEX]
+        output.machineAmount = MACHINE_AMOUNT
+        output.replication = 1
+        output.time = exTime
+        output.iterations = this.runs
+
+        let sum = 0;
+        this.machines.forEach(machine => {
+            sum += machine.getLocalMakespan()
+        });
+        output.value = sum
+        output.param = randParam
+
+        console.log(output)
+    }
+
     getMakespans = () => {
         let spans = []
         this.machines.forEach(machine => {
             spans.push(machine.getLocalMakespan());
         });
         return spans;
+    }
+
+    TakeSnapshot() {
+        this.bestSolution = []
+        this.machines.forEach(machine => {
+            this.bestSolution.push(machine.getTasks())
+        });
     }
 
     bestMove() {
@@ -71,7 +217,6 @@ class Manager {
                 notEmptyMachines.push(i);
             }
         }
-        console.log(notEmptyMachines)
         return notEmptyMachines;
     }
 
@@ -97,7 +242,6 @@ class Manager {
     distributeTasks() {
         let bestMakespan = Number.POSITIVE_INFINITY
         let currentMakespan;
-        let runs = 0;
         let count = 0;
         while (true) {
             if (monFlag) {
@@ -110,7 +254,8 @@ class Manager {
                 this.makeSpanHistory.push(currentMakespan)
                 if (bestMakespan > currentMakespan) {
                     bestMakespan = currentMakespan;
-                    runs++
+                    this.TakeSnapshot()
+                    this.runs++
                 } else {
                     count++
                 }
@@ -125,7 +270,8 @@ class Manager {
                 count++
                 if (bestMakespan > currentMakespan) {
                     bestMakespan = currentMakespan;
-                    runs++
+                    this.TakeSnapshot()
+                    this.runs++
                 } else {
                     break;
                 }
@@ -142,7 +288,7 @@ function doStuff() {
 
     monFlag = (document.getElementById('monFlag').value == 0) ? false : true;
     randomTaskFlag = (document.getElementById('randTaskFlas').value == 0) ? false : true;
-    
+
     for (let i = 0; i < TASK_AMOUNT_MULTIPLIER.length; i++) {
         TASK_AMOUNT[i] = Math.round(Math.pow(MACHINE_AMOUNT, TASK_AMOUNT_MULTIPLIER[i]));
     }
@@ -152,11 +298,11 @@ function doStuff() {
     var manager = new Manager(MACHINE_AMOUNT)
 
     manager.distributeTasks();
-    manager.machines.forEach(machine => {
-        console.log(machine.getTasks(), machine.getLocalMakespan())
-    });
 
     var end = new Date().getTime();
     var time = end - start;
-    console.log('Execution time: ' + time + 'ms');
+
+    manager.plot();
+
+    manager.generateOutput(time, randomParam)
 }
