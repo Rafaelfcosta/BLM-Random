@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>BLM</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+        integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+</head>
+
+<body>
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Job shop scheduling</h1>
+                </div>
+                <div class="col-md-12">
+                    <button id="run" class="btn btn-success" onclick="doStuff()">Run</button>
+                </div>
+                <div class="form-inline">
+                    <div class="input-group col-4">
+                        <span class="input-group-addon" id="sizing-addon2">Machines</span>
+                        <select name="machines" id="selectMach" class="form-control">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="input-group col-4">
+                        <span class="input-group-addon" id="sizing-addon2">Task Multiplier</span>
+                        <select name="taskmult" id="selectTaskMult" class="form-control">
+                            <option value="0">1.5</option>
+                            <option value="1">2.0</option>
+                        </select>
+                    </div>
+                    <div class="input-group col-4">
+                        <span class="input-group-addon" id="sizing-addon2">Random Prob.</span>
+                        <input id="randomProb" onkeypress="return event.charCode >= 48" type="number" min="0" max="1"
+                            class="form-control" value="0.5" step="0.1" aria-describedby="sizing-addon2">
+                    </div>
+                </div>
+                <div class="col-md-12 form-inline">
+                    <!-- <div class="input-group col-4"> -->
+                        <span class="input-group-addon" id="sizing-addon2">Mode</span>
+                        <select name="monFlag" id="monFlag" class="form-control">
+                            <option value="0">Monotonous</option>
+                            <option value="1">Random</option>
+                        </select>
+
+                        <span class="input-group-addon" id="sizing-addon2">Random Behaviour</span>
+                        <select name="randTaskFlas" id="randTaskFlas" class="form-control">
+                            <option value="0">Expensive Task</option>
+                            <option value="1">Random Task</option>
+                        </select>
+                    <!-- </div> -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+        integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"
+        integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+        crossorigin="anonymous"></script>
+    <script src="./Machine.js"></script>
+    <script src="./index.js"></script>
+
+
+</body>
+
+</html>
