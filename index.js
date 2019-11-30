@@ -140,14 +140,12 @@ class Manager {
         new Chart(ctx, config);
     }
 
-    generateOutput(exTime, randParam) {
+    generateOutput(exTime, randParam, i) {
         let output = new Object();
-        var sel = document.getElementById('monFlag');
-        var text = sel.options[sel.selectedIndex].text;
-        output.heuristic = text
+        output.heuristic = monFlag ? 'Random' : 'Monotonous'
         output.taskAmout = TASK_AMOUNT[TASK_AMOUNT_INDEX]
         output.machineAmount = MACHINE_AMOUNT
-        output.replication = 1
+        output.replication = i
         output.time = exTime
         output.iterations = this.runs
 
@@ -159,6 +157,7 @@ class Manager {
         output.param = randParam
 
         console.log(output)
+        return output;
     }
 
     getMakespans = () => {
@@ -302,7 +301,128 @@ function doStuff() {
     var end = new Date().getTime();
     var time = end - start;
 
+    manager.generateOutput(time, randomParam, 1)
+
+    manager.plot();
+}
+
+function genTasks() {
+    for (let i = 0; i < TASK_AMOUNT_MULTIPLIER.length; i++) {
+        TASK_AMOUNT[i] = Math.round(Math.pow(MACHINE_AMOUNT, TASK_AMOUNT_MULTIPLIER[i]));
+    }
+}
+
+function xuxu() {
+    MACHINE_AMOUNT = parseInt(document.getElementById('selectMach').value);
+    TASK_AMOUNT_INDEX = parseInt(document.getElementById('selectTaskMult').value);
+    randomParam = parseFloat(document.getElementById('randomProb').value);
+
+    monFlag = (document.getElementById('monFlag').value == 0) ? false : true;
+    randomTaskFlag = (document.getElementById('randTaskFlas').value == 0) ? false : true;
+
+    genTasks()
+
+    let result = []
+    for (let x = 0; x < 2; x++) {
+
+        for (let i = 0; i < 10; i++) {
+            var start = new Date().getTime();
+
+            var manager = new Manager(MACHINE_AMOUNT)
+
+            manager.distributeTasks();
+
+            var end = new Date().getTime();
+            var time = end - start;
+
+            result.push(manager.generateOutput(time, randomParam, i))
+        }
+
+        TASK_AMOUNT_INDEX++
+        genTasks()
+        for (let i = 0; i < 10; i++) {
+            var start = new Date().getTime();
+
+            var manager = new Manager(MACHINE_AMOUNT)
+
+            manager.distributeTasks();
+
+            var end = new Date().getTime();
+            var time = end - start;
+
+            result.push(manager.generateOutput(time, randomParam, i))
+        }
+
+        TASK_AMOUNT_INDEX--
+        MACHINE_AMOUNT = 20
+        genTasks()
+        for (let i = 0; i < 10; i++) {
+            var start = new Date().getTime();
+
+            var manager = new Manager(MACHINE_AMOUNT)
+
+            manager.distributeTasks();
+
+            var end = new Date().getTime();
+            var time = end - start;
+
+            result.push(manager.generateOutput(time, randomParam, i))
+        }
+
+        TASK_AMOUNT_INDEX++
+        genTasks()
+        for (let i = 0; i < 10; i++) {
+            var start = new Date().getTime();
+
+            var manager = new Manager(MACHINE_AMOUNT)
+
+            manager.distributeTasks();
+
+            var end = new Date().getTime();
+            var time = end - start;
+
+            result.push(manager.generateOutput(time, randomParam, i))
+        }
+
+        TASK_AMOUNT_INDEX--
+        MACHINE_AMOUNT = 50
+        genTasks()
+        for (let i = 0; i < 10; i++) {
+            var start = new Date().getTime();
+
+            var manager = new Manager(MACHINE_AMOUNT)
+
+            manager.distributeTasks();
+
+            var end = new Date().getTime();
+            var time = end - start;
+
+            result.push(manager.generateOutput(time, randomParam, i))
+        }
+
+        TASK_AMOUNT_INDEX++
+        genTasks()
+        for (let i = 0; i < 10; i++) {
+            var start = new Date().getTime();
+
+            var manager = new Manager(MACHINE_AMOUNT)
+
+            manager.distributeTasks();
+
+            var end = new Date().getTime();
+            var time = end - start;
+
+            result.push(manager.generateOutput(time, randomParam, i))
+        }
+
+        TASK_AMOUNT_INDEX--
+        monFlag = true
+    }
+
     manager.plot();
 
-    manager.generateOutput(time, randomParam)
+    $("#test").click(function () {
+        var json = JSON.stringify(result)
+        this.href = "data:application/json;charset=UTF-8," + encodeURIComponent(json);
+    });
 }
